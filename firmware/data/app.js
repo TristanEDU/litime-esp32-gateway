@@ -1,0 +1,22 @@
+const $ = (id) => document.getElementById(id);
+let setupPassword = sessionStorage.getItem('setupPassword') || '';
+const setupMessage = (text, state = '') => { $('setup-message').className = state; $('setup-message').textContent = text; };
+const setupHeaders = () => { if (!setupPassword) setupPassword = prompt('Enter the setup password printed on the serial console:') || ''; sessionStorage.setItem('setupPassword', setupPassword); return { Authorization: `Basic ${btoa(`admin:${setupPassword}`)}`, 'Content-Type': 'application/json' }; };
+const value = (number, decimals = 1) => Number.isFinite(number) ? number.toFixed(decimals) : '—';
+
+async function refreshBattery() {
+  try {
+    const data = await (await fetch('/api/battery', { cache: 'no-store' })).json();
+    $('connection').textContent = data.valid ? 'Live BLE telemetry' : data.connected ? 'Waiting for telemetry' : 'Battery disconnected'; $('connection').className = `badge ${data.valid ? 'good' : 'bad'}`;
+    $('soc').textContent = data.valid ? data.soc : '—'; $('voltage').textContent = value(data.voltage, 2); $('current').textContent = value(data.current, 2); $('power').textContent = value(data.power, 0);
+    const details = [`${value(data.remainingAh, 1)} / ${value(data.capacityAh, 1)} Ah`, `${value(data.cellDeltaMv, 1)} mV`, `${value(data.cellTemp, 1)} °C`, `${value(data.mosfetTemp, 1)} °C`]; [...$('details').querySelectorAll('dd')].forEach((node, i) => node.textContent = details[i]);
+    $('cells').innerHTML = (data.cells || []).map((cell, i) => `<span class="cell">Cell ${i + 1}: ${value(cell, 3)} V</span>`).join('');
+  } catch { $('connection').textContent = 'Gateway unreachable'; $('connection').className = 'badge bad'; }
+}
+async function refreshStatus() { const status = await (await fetch('/api/status')).json(); const station = status.station.connected ? `Connected to ${status.station.ssid} (${status.station.ip})` : status.station.ssid ? `Connecting to ${status.station.ssid}…` : 'No saved Wi-Fi network.'; $('network-status').textContent = `${station} Setup AP: ${status.ap.ssid} at ${status.ap.ip}. Local storage: ${status.storage.used}/${status.storage.total} bytes.`; }
+async function refreshHistory() { const samples = await (await fetch('/api/history')).json(); $('history-empty').hidden = samples.length > 0; $('history').innerHTML = samples.slice(-12).reverse().map(sample => `<span class="sample"><small>${Math.round(sample.uptime_ms / 60000)} min</small>${value(sample.voltage, 2)} V · ${sample.soc}%</span>`).join(''); }
+async function scan() { setupMessage('Scanning…'); const response = await fetch('/api/wifi/scan', { method: 'POST', headers: setupHeaders() }); if (!response.ok) throw new Error('Setup password was not accepted.'); for (let i = 0; i < 12; i += 1) { await new Promise(resolve => setTimeout(resolve, 1000)); const result = await (await fetch('/api/wifi/scan')).json(); if (result.state !== 'complete') continue; $('ssid').innerHTML = '<option value="">Choose a network</option>' + result.networks.map(network => `<option value="${network.ssid.replaceAll('&', '&amp;').replaceAll('"', '&quot;')}">${network.ssid} (${network.rssi} dBm${network.secure ? ', secured' : ', open'})</option>`).join(''); setupMessage(`Found ${result.networks.length} network(s).`, 'ok'); return; } setupMessage('Scan is still running; try again in a moment.', 'error'); }
+$('scan').addEventListener('click', () => scan().catch(error => setupMessage(error.message, 'error')));
+$('wifi-form').addEventListener('submit', async (event) => { event.preventDefault(); try { const response = await fetch('/api/wifi/configure', { method: 'POST', headers: setupHeaders(), body: JSON.stringify({ ssid: $('ssid').value, password: $('password').value }) }); const result = await response.json(); if (!response.ok) throw new Error(result.error || 'Could not save network.'); setupMessage('Saved. The gateway is now joining that network; the setup AP remains available.', 'ok'); setTimeout(refreshStatus, 2500); } catch (error) { setupMessage(error.message, 'error'); } });
+$('forget').addEventListener('click', async () => { try { await fetch('/api/wifi/forget', { method: 'POST', headers: setupHeaders() }); setupMessage('Saved Wi-Fi credentials cleared.', 'ok'); refreshStatus(); } catch { setupMessage('Could not clear credentials.', 'error'); } });
+refreshBattery(); refreshStatus(); refreshHistory(); setInterval(refreshBattery, 3000); setInterval(refreshStatus, 10000); setInterval(refreshHistory, 60000);

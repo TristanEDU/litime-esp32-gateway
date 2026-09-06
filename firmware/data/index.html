@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>LiTime Gateway</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main>
+    <header><div><p class="eyebrow">LiTime ESP32 gateway</p><h1>Battery monitor</h1></div><span id="connection" class="badge">Connecting…</span></header>
+    <section class="metrics" aria-label="Live battery telemetry">
+      <article><small>State of charge</small><strong id="soc">—</strong><span>%</span></article>
+      <article><small>Voltage</small><strong id="voltage">—</strong><span>V</span></article>
+      <article><small>Current</small><strong id="current">—</strong><span>A</span></article>
+      <article><small>Power</small><strong id="power">—</strong><span>W</span></article>
+    </section>
+    <section class="panel"><h2>Pack details</h2><dl id="details"><div><dt>Capacity</dt><dd>—</dd></div><div><dt>Cell delta</dt><dd>—</dd></div><div><dt>Cell temperature</dt><dd>—</dd></div><div><dt>MOSFET temperature</dt><dd>—</dd></div></dl><div id="cells" class="cells"></div></section>
+    <section class="panel"><h2>Recent local history</h2><p id="history-empty">No 60-second samples yet.</p><div id="history" class="history"></div></section>
+    <section class="panel setup"><h2>Wi-Fi setup</h2><p id="network-status">The setup access point remains available while the gateway joins a saved network.</p><button id="scan" type="button">Scan for Wi-Fi</button><form id="wifi-form"><label>Network<select id="ssid" required><option value="">Scan, then choose a network</option></select></label><label>Password<input id="password" type="password" autocomplete="current-password" maxlength="63"></label><button type="submit">Save and connect</button></form><p class="hint">Saving requires the per-device setup password printed on the serial console at boot.</p><button id="forget" type="button" class="quiet">Forget saved Wi-Fi</button><p id="setup-message" role="status"></p></section>
+  </main>
+  <script src="/app.js"></script>
+</body>
+</html>
