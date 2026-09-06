@@ -5,50 +5,55 @@
 #include "GatewayConfig.h"
 
 namespace {
-constexpr size_t kTelemetryMaximumBytes = 71680;
-constexpr size_t kEventsMaximumBytes = 4096;
-constexpr size_t kRemoteQueueMaximumBytes = 8192;
+  constexpr size_t kTelemetryMaximumBytes = 71680;
+  constexpr size_t kEventsMaximumBytes = 4096;
+  constexpr size_t kRemoteQueueMaximumBytes = 8192;
 
-String csvValue(float value, uint8_t decimals) { return String(value, static_cast<unsigned int>(decimals)); }
+  String csvValue(float value, uint8_t decimals) { return String(value, static_cast<unsigned int>(decimals)); }
 
-String telemetryCsv(const BatteryData& data) {
-  String line;
-  line.reserve(96);
-  line += String(millis());
-  line += ',' + csvValue(data.voltage, 2);
-  line += ',' + csvValue(data.current, 2);
-  line += ',' + String(data.soc);
-  line += ',' + csvValue(data.power, 1);
-  line += ',' + csvValue(data.cellTemp, 1);
-  line += ',' + csvValue(data.mosfetTemp, 1);
-  line += ',' + csvValue(data.cellDeltaMv, 1);
-  return line;
-}
-
-String telemetryJson(const BatteryData& data) {
-  String json = "{\"uptime_ms\":" + String(millis());
-  json += ",\"voltage\":" + csvValue(data.voltage, 2);
-  json += ",\"current\":" + csvValue(data.current, 2);
-  json += ",\"soc\":" + String(data.soc);
-  json += ",\"power\":" + csvValue(data.power, 1);
-  json += ",\"cell_temp\":" + csvValue(data.cellTemp, 1);
-  json += ",\"mosfet_temp\":" + csvValue(data.mosfetTemp, 1);
-  json += ",\"cell_delta_mv\":" + csvValue(data.cellDeltaMv, 1);
-  return json + '}';
-}
-
-String jsonEscape(const String& value) {
-  String escaped;
-  for (size_t i = 0; i < value.length(); ++i) {
-    if (value[i] == '\\' || value[i] == '"') escaped += '\\';
-    escaped += value[i];
+  String telemetryCsv(const BatteryData& data) {
+    String line;
+    line.reserve(96);
+    line += String(millis());
+    line += ',' + csvValue(data.voltage, 2);
+    line += ',' + csvValue(data.current, 2);
+    line += ',' + String(data.soc);
+    line += ',' + csvValue(data.power, 1);
+    line += ',' + csvValue(data.cellTemp, 1);
+    line += ',' + csvValue(data.mosfetTemp, 1);
+    line += ',' + csvValue(data.cellDeltaMv, 1);
+    return line;
   }
-  return escaped;
-}
+
+  String telemetryJson(const BatteryData& data) {
+    String json = "{\"uptime_ms\":" + String(millis());
+    json += ",\"voltage\":" + csvValue(data.voltage, 2);
+    json += ",\"current\":" + csvValue(data.current, 2);
+    json += ",\"soc\":" + String(data.soc);
+    json += ",\"power\":" + csvValue(data.power, 1);
+    json += ",\"cell_temp\":" + csvValue(data.cellTemp, 1);
+    json += ",\"mosfet_temp\":" + csvValue(data.mosfetTemp, 1);
+    json += ",\"cell_delta_mv\":" + csvValue(data.cellDeltaMv, 1);
+    return json + '}';
+  }
+
+  String jsonEscape(const String& value) {
+    String escaped;
+    for (size_t i = 0; i < value.length(); ++i) {
+      if (value[i] == '\\' || value[i] == '"') escaped += '\\';
+      escaped += value[i];
+    }
+    return escaped;
+  }
 }
 
 bool StorageManager::begin() {
-  mounted = LittleFS.begin(true);
+  mounted = LittleFS.begin(
+      true,
+      "/littlefs",
+      10,
+      "littlefs"
+      );
   if (!mounted) return false;
   if (!LittleFS.exists("/telemetry.csv")) {
     File file = LittleFS.open("/telemetry.csv", FILE_WRITE);
