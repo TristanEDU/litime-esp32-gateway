@@ -1,6 +1,20 @@
 #!/bin/zsh
+set -euo pipefail
+
+port="${1:-/dev/cu.usbserial-0001}"
+profile="${2:-release}"
+./scripts/build.sh "$profile"
+./scripts/build-fs.sh build/littlefs.bin
 
 arduino-cli upload \
-  -p /dev/cu.usbserial-0001 \
-  --fqbn 'esp32:esp32:esp32:FlashMode=dio,FlashSize=4M,PartitionScheme=no_fs,UploadSpeed=115200' \
-  firmware
+  --input-dir "build/$profile" \
+  -p "$port" \
+  --fqbn 'esp32:esp32:esp32:FlashMode=dio,FlashSize=4M,PartitionScheme=custom,UploadSpeed=115200'
+
+esptool_path=$(arduino-cli compile --show-properties --fqbn 'esp32:esp32:esp32:FlashMode=dio,FlashSize=4M,PartitionScheme=custom,UploadSpeed=115200' firmware 2>/dev/null | sed -n 's/^runtime.tools.esptool_py.path=//p' | head -1)
+esptool="$esptool_path/esptool"
+if [[ -z "$esptool_path" || ! -x "$esptool" ]]; then
+  print -u2 'esptool was not found in the installed ESP32 Arduino core.'
+  exit 1
+fi
+"$esptool" --chip esp32 --port "$port" --baud 460800 write-flash 0x3D0000 build/littlefs.bin
