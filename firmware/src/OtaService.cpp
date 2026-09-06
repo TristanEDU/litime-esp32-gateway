@@ -9,9 +9,10 @@
 #include "GatewayLog.h"
 #endif
 
-void OtaService::begin() {
+void OtaService::begin(const String& password) {
 #if GATEWAY_ENABLE_ARDUINO_OTA
   ArduinoOTA.setHostname("litime-gateway");
+  ArduinoOTA.setPassword(password.c_str());
   ArduinoOTA.onStart([]() { GATEWAY_LOGLN("OTA update started"); });
   ArduinoOTA.onEnd([]() { GATEWAY_LOGLN("OTA update complete"); });
 #endif

@@ -5,18 +5,18 @@
 #include "GatewayLog.h"
 
 namespace {
-String jsonEscape(const String& value) {
-  String escaped;
-  escaped.reserve(value.length() + 8);
-  for (size_t i = 0; i < value.length(); ++i) {
-    const char c = value[i];
-    if (c == '\\' || c == '"') {
-      escaped += '\\';
+  String jsonEscape(const String& value) {
+    String escaped;
+    escaped.reserve(value.length() + 8);
+    for (size_t i = 0; i < value.length(); ++i) {
+      const char c = value[i];
+      if (c == '\\' || c == '"') {
+        escaped += '\\';
+      }
+      escaped += c;
     }
-    escaped += c;
+    return escaped;
   }
-  return escaped;
-}
 }
 
 bool GatewayNetwork::begin() {
@@ -31,10 +31,11 @@ bool GatewayNetwork::begin() {
   const uint64_t chipId = ESP.getEfuseMac();
   char suffix[7];
   snprintf(suffix, sizeof(suffix), "%06llX",
-           static_cast<unsigned long long>(chipId & 0xFFFFFF));
+      static_cast<unsigned long long>(chipId & 0xFFFFFF));
   apName = String("LiTime-Setup-") + suffix;
 
   WiFi.mode(WIFI_AP_STA);
+  WiFi.setAutoReconnect(true);
   const bool apStarted = WiFi.softAP(apName.c_str(), setupKey.c_str());
   if (!apStarted) {
     return false;
@@ -44,14 +45,8 @@ bool GatewayNetwork::begin() {
 }
 
 void GatewayNetwork::loop() {
-  if (savedSsid.isEmpty() || stationConnected()) {
-    return;
+  // Wi-Fi reconnection is handled by the ESP32 Wi-Fi stack.
   }
-  if (millis() - lastReconnectAt >= 30000UL) {
-    connectSavedNetwork();
-  }
-}
-
 bool GatewayNetwork::startScan() {
   if (WiFi.scanComplete() == WIFI_SCAN_RUNNING) {
     return true;

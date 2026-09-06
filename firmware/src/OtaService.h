@@ -1,10 +1,12 @@
 #pragma once
 
-class OtaService {
- public:
-  void begin();
- void loop();
+#include <Arduino.h>
 
- private:
-  bool started = false;
+class OtaService {
+  public:
+    void begin(const String& password);
+    void loop();
+
+  private:
+    bool started = false;
 };
