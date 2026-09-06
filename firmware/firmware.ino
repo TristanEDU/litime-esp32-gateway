@@ -1,10 +1,16 @@
 #include <Arduino.h>
+#include <WiFi.h>
+#include <WebServer.h>
+
+const char* AP_SSID = "LiTime_Gateway";
+const char* AP_PASSWORD = "litime123";
 
 #include "src/LiTimeBLEProvider.h"
 #include "src/LiTimeScanner.h"
 
 LiTimeBLEProvider battery;
 LiTimeScanner scanner;
+WebServer server(80);
 
 void setup() {
   Serial.begin(115200);
@@ -13,6 +19,31 @@ void setup() {
   Serial.println();
   Serial.println("LiTime ESP32 Gateway");
   Serial.println("====================");
+
+  WiFi.mode(WIFI_AP);
+
+  if (WiFi.softAP(AP_SSID, AP_PASSWORD)) {
+    Serial.println("Wi-Fi access point started.");
+    Serial.println("SSID: ");
+    Serial.println(AP_SSID);
+
+    Serial.print("IP: ");
+    Serial.println(WiFi.softAPIP());
+  } else {
+    Serial.println("Wi-Fi access point failed to start.");
+  }
+
+  server.on("/", []() {
+      server.send(
+          200,
+          "text/html",
+          "<h1>LiTime ESP32 Gateway</h1><p>Gateway is online.</p>"
+          );
+      });
+
+  server.begin();
+
+  Serial.println("Web server started.");
 
   battery.begin();
 
@@ -62,29 +93,33 @@ void setup() {
 }
 
 void loop() {
+  server.handleClient(); 
+
   battery.update();
 
+
+
   if (battery.isConnected()) {
-  const BatteryData& data = battery.getData();
+    const BatteryData& data = battery.getData();
 
-  if (!data.valid) {
-    Serial.println("Waiting for first valid telemetry...");
-  } else {
-    Serial.print("Voltage: ");
-    Serial.print(data.voltage, 2);
-    Serial.println(" V");
+    if (!data.valid) {
+      Serial.println("Waiting for first valid telemetry...");
+    } else {
+      Serial.print("Voltage: ");
+      Serial.print(data.voltage, 2);
+      Serial.println(" V");
 
-    Serial.print("Current: ");
-    Serial.print(data.current, 2);
-    Serial.println(" A");
+      Serial.print("Current: ");
+      Serial.print(data.current, 2);
+      Serial.println(" A");
 
-    Serial.print("SOC: ");
-    Serial.print(data.soc);
-    Serial.println(" %");
+      Serial.print("SOC: ");
+      Serial.print(data.soc);
+      Serial.println(" %");
 
-    Serial.println();
+      Serial.println();
+    }
   }
-}
 
   delay(3000);
 }
