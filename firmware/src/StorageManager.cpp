@@ -6,10 +6,9 @@
 #include "GatewayConfig.h"
 
 namespace {
-  constexpr size_t kTelemetryMaximumBytes = 71680;
-  constexpr size_t kEventsMaximumBytes = 4096;
-  constexpr size_t kRemoteQueueMaximumBytes = 8192;
-
+  constexpr size_t kTelemetryMaximumBytes = 12288;
+  constexpr size_t kEventsMaximumBytes = 2048;
+  constexpr size_t kRemoteQueueMaximumBytes = 4096;
   String csvValue(float value, uint8_t decimals) { return String(value, static_cast<unsigned int>(decimals)); }
 
   String telemetryCsv(const BatteryData& data) {

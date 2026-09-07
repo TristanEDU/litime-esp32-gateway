@@ -10,6 +10,7 @@
 #include "src/OtaService.h"
 #include "src/RemoteSync.h"
 #include "src/StorageManager.h"
+#include "src/RemoteDashboard.h"
 
 LiTimeBLEProvider battery;
 LiTimeScanner scanner;
@@ -18,6 +19,7 @@ StorageManager storage;
 RemoteSync remoteSync;
 OtaService ota;
 WebServer server(80);
+RemoteDashboard remoteDashboard;
 
 namespace {
   bool previousBatteryConnected = false;
@@ -154,6 +156,7 @@ void setup() {
   GATEWAY_BOOT("LiTime ESP32 Gateway");
   if (!storage.begin()) GATEWAY_BOOT("LittleFS mount failed; local history is unavailable.");
   if (!network.begin()) GATEWAY_BOOT("Setup access point failed to start.");
+  remoteDashboard.begin(batteryJson);
   GATEWAY_BOOT(String("Setup Wi-Fi: ") + network.apSsid());
   GATEWAY_BOOT(String("Setup password: ") + network.setupPassword());
   GATEWAY_BOOT(String("Setup address: http://") + WiFi.softAPIP().toString());
@@ -174,6 +177,7 @@ void setup() {
 void loop() {
   server.handleClient();
   network.loop();
+  remoteDashboard.loop();
   ota.loop();
   battery.update();
   const bool connected = battery.isConnected();
