@@ -8,6 +8,7 @@
 	const cells = $('cells');
 	let socket;
 	let reconnectTimer;
+	let statusPollTimer;
 	let reconnectAttempts = 0;
 	let receivedStatusAt = 0;
 
@@ -89,6 +90,7 @@
 	}
 	function scheduleReconnect() {
 		clearTimeout(reconnectTimer);
+		clearInterval(statusPollTimer);
 		const delay = Math.min(30000, 1000 * 2 ** Math.min(reconnectAttempts, 5));
 		reconnectAttempts += 1;
 		setConnection('Relay reconnecting…', 'connecting');
@@ -105,7 +107,8 @@
 		socket.addEventListener('open', () => {
 			reconnectAttempts = 0;
 			setConnection('Requesting live status…', 'connecting');
-			socket.send(JSON.stringify({ type: 'get_status' }));
+			requestStatus();
+			statusPollTimer = setInterval(requestStatus, 3000);
 		});
 		socket.addEventListener('message', (event) => {
 			let message;
@@ -118,6 +121,12 @@
 		});
 		socket.addEventListener('error', () => socket.close());
 		socket.addEventListener('close', scheduleReconnect);
+	}
+
+	function requestStatus() {
+		if (socket?.readyState === WebSocket.OPEN) {
+			socket.send(JSON.stringify({ type: 'get_status' }));
+		}
 	}
 	window.addEventListener('online', connect);
 	window.addEventListener('offline', () => {
