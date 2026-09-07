@@ -1,6 +1,7 @@
 #include "StorageManager.h"
 
 #include <LittleFS.h>
+#include <time.h>
 
 #include "GatewayConfig.h"
 
@@ -27,6 +28,9 @@ namespace {
 
   String telemetryJson(const BatteryData& data) {
     String json = "{\"uptime_ms\":" + String(millis());
+    const time_t now = time(nullptr);
+    json += ",\"timestamp\":";
+    json += now > 1700000000 ? String(static_cast<unsigned long>(now)) : "null";
     json += ",\"voltage\":" + csvValue(data.voltage, 2);
     json += ",\"current\":" + csvValue(data.current, 2);
     json += ",\"soc\":" + String(data.soc);

@@ -1,6 +1,7 @@
 #include "NetworkManager.h"
 
 #include <esp_system.h>
+#include <time.h>
 
 #include "GatewayLog.h"
 
@@ -36,6 +37,7 @@ bool GatewayNetwork::begin() {
 
   WiFi.mode(WIFI_AP_STA);
   WiFi.setAutoReconnect(true);
+  configTime(0, 0, "pool.ntp.org", "time.nist.gov");
   const bool apStarted = WiFi.softAP(apName.c_str(), setupKey.c_str());
   if (!apStarted) {
     return false;
@@ -46,7 +48,7 @@ bool GatewayNetwork::begin() {
 
 void GatewayNetwork::loop() {
   // Wi-Fi reconnection is handled by the ESP32 Wi-Fi stack.
-  }
+}
 bool GatewayNetwork::startScan() {
   if (WiFi.scanComplete() == WIFI_SCAN_RUNNING) {
     return true;
@@ -113,6 +115,11 @@ String GatewayNetwork::statusJson() const {
   json += ",\"ssid\":\"" + jsonEscape(savedSsid) + "\",\"ip\":\"";
   json += stationConnected() ? WiFi.localIP().toString() : "";
   json += "\"}}";
+  const time_t now = time(nullptr);
+  json.remove(json.length() - 1);
+  json += ",\"time\":";
+  json += now > 1700000000 ? String(static_cast<unsigned long>(now)) : "null";
+  json += '}';
   return json;
 }
 
