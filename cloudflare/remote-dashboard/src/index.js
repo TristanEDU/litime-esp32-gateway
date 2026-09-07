@@ -61,8 +61,6 @@ export default {
       const relay = env.BATTERY_RELAY.getByName("battery");
       return relay.fetch(request);
     }
-    return new Response("Not found", {
-      status: 404,
-    });
+    return env.ASSETS.fetch(request);
   },
 };

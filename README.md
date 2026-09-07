@@ -10,6 +10,7 @@ An open-source, read-only gateway for Bluetooth-enabled LiTime batteries. It kee
 - Has release/development profiles; release compiles verbose telemetry/debug serial strings out.
 - Provides a unique WPA2 setup AP, password-protected network scan/save, AP+station reconnect, 60-second history, bounded events, and a bounded remote queue.
 - Keeps Arduino OTA enabled when a station network is connected.
+- Includes an optional Cloudflare-hosted, read-only remote dashboard at a user-owned custom domain. Its browser uses the same-origin WebSocket relay and shows the live firmware battery snapshot without exposing device credentials.
 
 ## Build and flash
 
@@ -33,6 +34,8 @@ Wi-Fi credentials and the setup password are saved in ESP32 NVS, not in source c
 LittleFS is a buffer, not a database. Valid BLE data is sampled at most once per minute. History, events, and unsent remote data have independent strict caps so a full queue cannot consume the UI filesystem. A valid remote batch is removed only after a 2xx response; intermittent connectivity does not stop BLE monitoring or local history.
 
 Remote sync is compiled off by default. Copy `firmware/config.example.h` to ignored `firmware/config.h`, supply a device-scoped HTTPS endpoint/token and PEM root CA, and set `GATEWAY_ENABLE_REMOTE_SYNC` to `1`. The device posts small JSON arrays every five minutes while online. See [remote access design](docs/remote-access.md).
+
+The separately optional remote dashboard uses `cloudflare/remote-dashboard/` and the ignored dashboard values in `firmware/config.h`. It relays only live status requests and replies: the browser sends `{"type":"get_status"}` to `/browser`, and the authenticated ESP32 returns `{"type":"status","battery":...}` through `/device`. The static page has no device token and is intentionally read-only. Deploy it with `npm ci && npm run deploy` from that directory after setting the Cloudflare Worker `DEVICE_TOKEN` secret.
 
 ## BLE and firmware-space profile
 

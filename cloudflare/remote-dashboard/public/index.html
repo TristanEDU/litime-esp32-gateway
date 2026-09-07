@@ -1,20 +1,86 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Hello, World!</title>
-		<p>This page comes from a static asset stored at `public/index.html` as configured in `wrangler.jsonc`.</p>
+		<meta name="theme-color" content="#090719" />
+		<title>LiTime Remote Battery Monitor</title>
+		<link rel="stylesheet" href="/style.css" />
 	</head>
 	<body>
-		<h1 id="heading"></h1>
-		<script>
-			fetch('/message')
-				.then((resp) => resp.text())
-				.then((text) => {
-					const h1 = document.getElementById('heading');
-					h1.textContent = text;
-				});
-		</script>
+		<main class="console">
+			<header class="topbar">
+				<div>
+					<p class="eyebrow">LiTime ESP32 gateway · remote relay</p>
+					<h1>Battery monitor</h1>
+				</div>
+				<div class="connection-wrap">
+					<span id="connection" class="badge connecting" role="status">Connecting to gateway…</span>
+					<span id="received-at" class="received-at">Awaiting first status</span>
+				</div>
+			</header>
+			<section class="metrics" aria-label="Live battery telemetry">
+				<article class="metric soc-metric">
+					<small>State of charge</small><strong id="soc">—</strong><span>%</span>
+					<div class="charge-track" aria-hidden="true"><i id="soc-bar"></i></div>
+				</article>
+				<article class="metric"><small>Voltage</small><strong id="voltage">—</strong><span>V</span></article>
+				<article class="metric"><small>Current</small><strong id="current">—</strong><span>A</span></article>
+				<article class="metric"><small>Power</small><strong id="power">—</strong><span>W</span></article>
+			</section>
+			<section class="panel pack-panel">
+				<div class="panel-heading">
+					<div>
+						<p class="section-kicker">Live pack data</p>
+						<h2>Pack details</h2>
+					</div>
+					<span id="validity" class="data-state">No live reading</span>
+				</div>
+				<dl class="details">
+					<div>
+						<dt>Capacity</dt>
+						<dd id="capacity">—</dd>
+					</div>
+					<div>
+						<dt>Cell count</dt>
+						<dd id="cell-count">—</dd>
+					</div>
+					<div>
+						<dt>Cell delta</dt>
+						<dd id="cell-delta">—</dd>
+					</div>
+					<div>
+						<dt>Lowest cell</dt>
+						<dd id="min-cell">—</dd>
+					</div>
+					<div>
+						<dt>Highest cell</dt>
+						<dd id="max-cell">—</dd>
+					</div>
+					<div>
+						<dt>Cell temperature</dt>
+						<dd id="cell-temp">—</dd>
+					</div>
+					<div>
+						<dt>MOSFET temperature</dt>
+						<dd id="mosfet-temp">—</dd>
+					</div>
+				</dl>
+				<div class="cell-header">
+					<h3>Cell voltages</h3>
+					<span id="cell-summary">No cells reported</span>
+				</div>
+				<div id="cells" class="cells" aria-live="polite"></div>
+			</section>
+			<section id="offline-panel" class="offline-panel" role="status">
+				<span class="offline-mark" aria-hidden="true">!</span>
+				<div>
+					<strong id="offline-title">Connecting to the relay</strong>
+					<p id="offline-copy">The dashboard will request live status as soon as the secure connection opens.</p>
+				</div>
+			</section>
+			<footer>Read-only remote view · No battery controls are exposed here.</footer>
+		</main>
+		<script src="/app.js" defer></script>
 	</body>
 </html>

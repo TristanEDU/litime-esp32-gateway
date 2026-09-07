@@ -14,8 +14,10 @@
      }
    ],
    "assets": {
-    // The path to the directory containing the `index.html` file to be served at `/`
-    "directory": "./public"
+    // The Worker serves the dashboard shell and reserves the relay routes.
+    "directory": "./public",
+    "binding": "ASSETS",
+    "run_worker_first": true
    },
    "durable_objects": {
      "bindings": [
