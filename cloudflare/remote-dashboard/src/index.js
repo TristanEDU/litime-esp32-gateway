@@ -26,17 +26,21 @@ export class BatteryRelay extends DurableObject {
 
   webSocketMessage(webSocket, message) {
     const tags = this.ctx.getTags(webSocket);
+    // The ESP32 relay speaks text JSON only. Normalize browser WebSocket
+    // payloads so a binary representation cannot be forwarded to its text
+    // message handler.
+    const text = typeof message === "string" ? message : new TextDecoder().decode(message);
 
     if (tags.includes("device")) {
       for (const client of this.ctx.getWebSockets("browser")) {
-        client.send(message);
+        client.send(text);
       }
       return;
     }
 
     if (tags.includes("browser")) {
       for (const device of this.ctx.getWebSockets("device")) {
-        device.send(message);
+        device.send(text);
       }
     }
   }

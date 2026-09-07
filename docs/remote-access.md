@@ -16,7 +16,7 @@ The optional remote-dashboard relay uses the same ignored configuration file. Wh
 
 ## Remote browser dashboard
 
-`cloudflare/remote-dashboard/` hosts the read-only dashboard and the relay. The `/device` WebSocket accepts only the configured bearer token; `/browser` is intentionally token-free so the page can establish its same-origin `wss://<dashboard-host>/browser` connection without embedding a device credential in client JavaScript. Once connected, the browser sends `{"type":"get_status"}`. The ESP32 recognizes that exact request and returns `{"type":"status","battery":...}` using the existing firmware battery serializer.
+`cloudflare/remote-dashboard/` hosts the read-only dashboard and the relay. The `/device` WebSocket accepts only the configured bearer token; `/browser` is intentionally token-free so the page can establish its same-origin `wss://<dashboard-host>/browser` connection without embedding a device credential in client JavaScript. The relay normalizes payloads to text because the ESP32 accepts text JSON only. Once connected, the browser sends `{"type":"get_status"}`. The ESP32 recognizes that exact request and returns `{"type":"status","battery":...}` using the existing firmware battery serializer.
 
 The dashboard renders the complete live snapshot: connection/validity state, voltage, current, state of charge, power, remaining/capacity Ah, cell and MOSFET temperatures, count, minimum/maximum/delta, and the reported per-cell voltages. It re-requests the read-only status every three seconds while its relay socket is open, reconnects with a capped backoff, and makes relay loss, device disconnection, and a connected-but-not-valid reading visibly distinct. It retains no history and exposes no BMS control.
 
