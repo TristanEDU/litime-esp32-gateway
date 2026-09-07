@@ -7,6 +7,12 @@
    "name": "remote-dashboard",
    "main": "src/index.js",
    "compatibility_date": "2026-09-03",
+   "routes": [
+     {
+       "pattern": "battery.tjt-media.online",
+       "custom_domain": true
+     }
+   ],
    "assets": {
     // The path to the directory containing the `index.html` file to be served at `/`
     "directory": "./public"
