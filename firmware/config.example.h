@@ -11,3 +11,10 @@
 // value in config.h (or use a raw C++ string literal) and leave it empty when
 // remote sync is disabled.
 #define GATEWAY_REMOTE_CA_CERT ""
+
+// Optional outbound remote dashboard relay. Keep this disabled unless all
+// values are set in the ignored config.h; it shares the ESP32 with LiTime BLE.
+#define GATEWAY_ENABLE_REMOTE_DASHBOARD 0
+#define GATEWAY_REMOTE_DASHBOARD_HOST "dashboard.example.invalid"
+#define GATEWAY_REMOTE_DASHBOARD_PATH "/device"
+#define GATEWAY_REMOTE_DASHBOARD_TOKEN "replace-with-a-device-scoped-token"

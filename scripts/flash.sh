@@ -17,4 +17,4 @@ if [[ -z "$esptool_path" || ! -x "$esptool" ]]; then
   echo 'esptool was not found in the installed ESP32 Arduino core.' >&2
   exit 1
 fi
-"$esptool" --chip esp32 --port "$port" --baud 460800 write-flash 0x3D0000 build/littlefs.bin
+"$esptool" --chip esp32 --port "$port" --baud 460800 write-flash 0x3F0000 build/littlefs.bin
