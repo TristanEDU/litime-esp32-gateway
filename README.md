@@ -4,16 +4,16 @@ An open-source, read-only gateway for Bluetooth-enabled LiTime batteries. It kee
 
 ## This phase
 
-- Preserves LiTime BLE discovery, live telemetry, and `/api/battery` JSON.
+- Preserves LiTime BLE discovery, live telemetry, and `/api/battery` JSON through a NimBLE central/observer transport.
 - Serves a real LittleFS web UI from `firmware/data/` (`index.html`, `style.css`, `app.js`).
-- Uses a 4 MB custom table: NVS, OTA metadata, two 1.875 MiB OTA slots, 128 KiB LittleFS, and coredump space.
+- Uses a 4 MB custom table: NVS, OTA metadata, two 1.9375 MiB OTA slots, and 64 KiB LittleFS.
 - Has release/development profiles; release compiles verbose telemetry/debug serial strings out.
 - Provides a unique WPA2 setup AP, password-protected network scan/save, AP+station reconnect, 60-second history, bounded events, and a bounded remote queue.
 - Keeps Arduino OTA enabled when a station network is connected.
 
 ## Build and flash
 
-Install Arduino CLI, `esp32:esp32`, and the original **BMS Client** library. Then:
+Install Arduino CLI and `esp32:esp32`. The required NimBLE-Arduino 2.5.1 source is vendored under `firmware/libraries/`, so no machine-local BLE library is required. Then:
 
 ```sh
 ./scripts/build.sh release
@@ -34,9 +34,11 @@ LittleFS is a buffer, not a database. Valid BLE data is sampled at most once per
 
 Remote sync is compiled off by default. Copy `firmware/config.example.h` to ignored `firmware/config.h`, supply a device-scoped HTTPS endpoint/token and PEM root CA, and set `GATEWAY_ENABLE_REMOTE_SYNC` to `1`. The device posts small JSON arrays every five minutes while online. See [remote access design](docs/remote-access.md).
 
-## Firmware-space profile
+## BLE and firmware-space profile
 
-With ESP32 Arduino core 3.3.11 and BMS Client 1.0.0, the original prototype used **1,682,363 bytes** in a 1.94 MiB OTA slot. The release gateway build uses **1,805,855 bytes** in its **1,966,080-byte** slot, leaving about **160 KiB**. BLE/BMS support is the major practical consumer; Wi-Fi/AP, LittleFS, web server, OTA, and buffering form the next tier. TLS sync is opt-in to retain growth margin: the tested enabled build is 1,927,167 bytes (about 39 KiB remaining), so future remote features require a size check.
+The gateway uses the NimBLE-Arduino 2.5.1 transport (Apache-2.0, vendored at `firmware/libraries/NimBLE-Arduino`) instead of the classic ESP32 `BMS_Client`/Bluedroid stack. Scanner and client share the same NimBLE host and preserve the LiTime `FFE0`/`FFE1`/`FFE2` read path and battery JSON fields. The stack is not deinitialized on a disconnect, allowing later scans and reconnects without colliding with the outbound TLS/WebSocket client.
+
+With ESP32 Arduino core 3.3.11, a configured remote-dashboard WebSocket build uses **1,501,853 bytes** for release and **1,508,105 bytes** for development in the **2,031,616-byte** OTA slot, leaving roughly **530 KiB** of code-space margin. The NimBLE migration also leaves **263,956 bytes** of reported dynamic-memory headroom at link time for the release build. The 64 KiB LittleFS image is built and flashed at `0x3F0000`; it is intentionally compact, so treat it as a bounded UI/history buffer rather than durable storage. Hardware validation is still required to establish run-time heap margin with a real LiTime BMS and TLS WebSocket connected.
 
 ## Safety
 

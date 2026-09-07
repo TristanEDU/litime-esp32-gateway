@@ -7,15 +7,13 @@ bool LiTimeBLEProvider::begin() {
   data.connected = false;
   data.simulated = false;
   data.valid = false;
-  return true;
+  return bms.begin();
 }
 
-bool LiTimeBLEProvider::connect(const char* macAddress) {
+bool LiTimeBLEProvider::connect(const char* macAddress, uint8_t addressType) {
   this->macAddress = macAddress;
 
-  bms.init(this->macAddress.c_str());
-
-  if (!bms.connect()) {
+  if (!bms.connect(this->macAddress.c_str(), addressType)) {
     data.connected = false;
     return false;
   }

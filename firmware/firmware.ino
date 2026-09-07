@@ -98,7 +98,9 @@ namespace {
     lastBatteryScanAt = millis();
     std::vector<DiscoveredBattery> batteries = scanner.scan(10);
     GATEWAY_LOG("Found %u compatible battery advertisements\\n", batteries.size());
-    if (!batteries.empty()) battery.connect(batteries[0].macAddress.c_str());
+    if (!batteries.empty()) {
+      battery.connect(batteries[0].macAddress.c_str(), batteries[0].addressType);
+    }
   }
 
   void setupRoutes() {
