@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-09-12
+
+- Added ESP32 remote-dashboard WebSocket heartbeats: the gateway sends a protocol ping every 15 seconds, treats two missed five-second pong windows as a broken connection, and uses the existing reconnect loop to recover when no browser is polling.
+- Installed the heartbeat-enabled firmware over authenticated Wi-Fi OTA and verified that the local API and remote relay returned valid eight-cell telemetry after reboot. A ten-minute test with all dashboards closed passed without restarting the gateway.
+- Added remote-dashboard time-until-empty and time-until-full estimates. The page uses reported remaining or missing amp-hours and a page-local, time-weighted rolling two-minute current average; it warms up for 15 seconds, handles idle/stale/duplicate data, resets on direction changes and reconnects, and explains that charging can taper near full.
+- Added nine deterministic estimator tests covering discharge, charging, fluctuating loads, idle behavior, stale data, duplicate frames, direction changes, device restarts, and display rounding. Verified desktop and 390 px layouts, no horizontal overflow, Worker dry-run, and live eight-cell browser rendering.
+
 ## 2026-09-07
 
 - Replaced the Cloudflare remote-dashboard scaffold with a responsive dark neon/electric-purple LiTime battery console. It uses the same-origin `/browser` WebSocket, requests live status, renders the complete existing battery snapshot, and handles relay reconnects plus disconnected/invalid data states without exposing device credentials.
