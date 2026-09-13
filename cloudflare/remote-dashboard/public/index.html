@@ -28,6 +28,13 @@
 				<article class="metric"><small>Current</small><strong id="current">—</strong><span>A</span></article>
 				<article class="metric"><small>Power</small><strong id="power">—</strong><span>W</span></article>
 			</section>
+			<section class="panel runtime-panel" aria-labelledby="runtime-label">
+				<div>
+					<h2 id="runtime-label">Battery time estimate</h2>
+					<p id="runtime-detail">Waiting for fresh battery data.</p>
+				</div>
+				<strong id="runtime-value">—</strong>
+			</section>
 			<section class="panel pack-panel">
 				<div class="panel-heading">
 					<div>
@@ -81,6 +88,6 @@
 			</section>
 			<footer>Read-only remote view · No battery controls are exposed here.</footer>
 		</main>
-		<script src="/app.js" defer></script>
+		<script src="/app.js" type="module"></script>
 	</body>
 </html>

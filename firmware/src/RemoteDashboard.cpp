@@ -70,6 +70,9 @@ void RemoteDashboard::begin(StatusProvider newStatusProvider) {
   webSocket.setExtraHeaders(authorizationHeader.c_str());
   webSocket.onEvent(handleWebSocketEvent);
   webSocket.setReconnectInterval(5000);
+  // Keep the device connection alive even when no browser is polling. Missing
+  // pong replies close a silent/broken connection so normal reconnect can run.
+  webSocket.enableHeartbeat(15000, 5000, 2);
 
   configured = true;
 #endif

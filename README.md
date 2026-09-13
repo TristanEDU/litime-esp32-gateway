@@ -37,6 +37,30 @@ Remote sync is compiled off by default. Copy `firmware/config.example.h` to igno
 
 The separately optional remote dashboard uses `cloudflare/remote-dashboard/` and the ignored dashboard values in `firmware/config.h`. It relays only live status requests and replies: the browser sends `{"type":"get_status"}` to `/browser`, and the authenticated ESP32 returns `{"type":"status","battery":...}` through `/device`. The static page has no device token and is intentionally read-only. Deploy it with `npm ci && npm run deploy` from that directory after setting the Cloudflare Worker `DEVICE_TOKEN` secret.
 
+### Remote dashboard idle recovery
+
+The ESP32 remote-dashboard connection sends a WebSocket ping every 15 seconds,
+even with no browser open. Each pong has a five-second timeout; two missed replies
+close the connection and allow the existing five-second reconnect loop to retry.
+Cloudflare [handles these protocol ping/pong frames automatically](https://developers.cloudflare.com/durable-objects/best-practices/websockets/#automatic-pingpong-handling), so this firmware
+change does not require a Worker deployment. After flashing, verify by closing all
+remote dashboards for at least ten minutes, then reopening one without restarting
+the ESP32. Also check recovery after a brief internet interruption.
+
+### Remote dashboard time estimates
+
+The remote page shows time until empty while discharging and time until full
+while charging, using reported amp-hours and a time-weighted rolling two-minute
+average of current. It gathers 15 seconds before showing a number and rounds
+estimates over an hour to five-minute increments. Brief zero-load readings remain
+in the average; sustained idle shows no estimate. A direction change, reconnect,
+device restart, or stale data starts a fresh averaging window. The average is
+local to each open page, so reopening the page starts with a short learning period.
+Charging estimates assume the recent rate continues; real charging can slow near
+full. These are estimates to reported empty/full capacity, not guaranteed cutoff
+times. Run the estimator checks with
+`node --test cloudflare/remote-dashboard/test/runtime-estimate.test.mjs`.
+
 ## BLE and firmware-space profile
 
 The gateway uses the NimBLE-Arduino 2.5.1 transport (Apache-2.0, vendored at `firmware/libraries/NimBLE-Arduino`) instead of the classic ESP32 `BMS_Client`/Bluedroid stack. Scanner and client share the same NimBLE host and preserve the LiTime `FFE0`/`FFE1`/`FFE2` read path and battery JSON fields. The stack is not deinitialized on a disconnect, allowing later scans and reconnects without colliding with the outbound TLS/WebSocket client.
