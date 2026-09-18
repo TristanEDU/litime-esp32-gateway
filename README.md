@@ -14,6 +14,8 @@ An open-source, read-only gateway for Bluetooth-enabled LiTime batteries. It kee
 
 ## Build and flash
 
+For a step-by-step walkthrough from a fresh computer through Cloudflare Worker deployment, see [setup.md](setup.md).
+
 Install Arduino CLI and `esp32:esp32`. The required NimBLE-Arduino 2.5.1 source is vendored under `firmware/libraries/`, so no machine-local BLE library is required. Then:
 
 ```sh
