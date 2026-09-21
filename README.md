@@ -71,9 +71,16 @@ With ESP32 Arduino core 3.3.11, a configured remote-dashboard WebSocket build us
 
 ## License
 
-Project-owned code, documentation, scripts, firmware UI assets, and the
-Cloudflare remote dashboard are licensed under the Apache License 2.0. See
-[LICENSE](LICENSE) and [NOTICE](NOTICE).
+This project is open source under reciprocal/copyleft licenses so commercial use
+and forks are allowed, while distributed modifications must stay open source.
+
+Project-owned firmware, local web UI assets, documentation, and scripts are
+licensed under **GPL-3.0-or-later**. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
+
+The optional Cloudflare remote dashboard in `cloudflare/remote-dashboard/` is
+licensed under **AGPL-3.0-or-later** so modified hosted/network versions must
+offer their corresponding source to users. See
+[`cloudflare/remote-dashboard/LICENSE`](cloudflare/remote-dashboard/LICENSE).
 
 The vendored NimBLE-Arduino 2.5.1 source remains under its upstream Apache-2.0
 license and notice, retained in `firmware/libraries/NimBLE-Arduino/`.

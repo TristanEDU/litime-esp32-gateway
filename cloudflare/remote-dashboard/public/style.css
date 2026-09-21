@@ -315,6 +315,9 @@ footer {
 	font-size: 0.72rem;
 	text-align: center;
 }
+footer a {
+	color: #bcaeff;
+}
 @keyframes pulse {
 	to {
 		opacity: 0.3;

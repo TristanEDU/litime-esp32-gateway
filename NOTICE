@@ -1,7 +1,10 @@
 LiTime ESP32 Gateway
 Copyright 2026 Tristan
 
-This product includes software developed for the LiTime ESP32 Gateway project.
+Unless noted otherwise, project-owned firmware, local web UI assets,
+documentation, and scripts are licensed under GPL-3.0-or-later. The optional
+Cloudflare remote dashboard in cloudflare/remote-dashboard/ is licensed under
+AGPL-3.0-or-later.
 
 The firmware vendors NimBLE-Arduino 2.5.1 under Apache-2.0. Its upstream
 license, notice, and vendor record are retained in:
