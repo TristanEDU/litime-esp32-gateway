@@ -69,6 +69,15 @@ The gateway uses the NimBLE-Arduino 2.5.1 transport (Apache-2.0, vendored at `fi
 
 With ESP32 Arduino core 3.3.11, a configured remote-dashboard WebSocket build uses **1,501,853 bytes** for release and **1,508,105 bytes** for development in the **2,031,616-byte** OTA slot, leaving roughly **530 KiB** of code-space margin. The NimBLE migration also leaves **263,956 bytes** of reported dynamic-memory headroom at link time for the release build. The 64 KiB LittleFS image is built and flashed at `0x3F0000`; it is intentionally compact, so treat it as a bounded UI/history buffer rather than durable storage. Hardware validation is still required to establish run-time heap margin with a real LiTime BMS and TLS WebSocket connected.
 
+## License
+
+Project-owned code, documentation, scripts, firmware UI assets, and the
+Cloudflare remote dashboard are licensed under the Apache License 2.0. See
+[LICENSE](LICENSE) and [NOTICE](NOTICE).
+
+The vendored NimBLE-Arduino 2.5.1 source remains under its upstream Apache-2.0
+license and notice, retained in `firmware/libraries/NimBLE-Arduino/`.
+
 ## Safety
 
 Monitoring only: this firmware exposes no LiTime charge/discharge control and must not be used as a safety system or automatic charging disconnect.

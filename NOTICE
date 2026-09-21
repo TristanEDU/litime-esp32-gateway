@@ -1,0 +1,14 @@
+LiTime ESP32 Gateway
+Copyright 2026 Tristan
+
+This product includes software developed for the LiTime ESP32 Gateway project.
+
+The firmware vendors NimBLE-Arduino 2.5.1 under Apache-2.0. Its upstream
+license, notice, and vendor record are retained in:
+
+  firmware/libraries/NimBLE-Arduino/LICENSE
+  firmware/libraries/NimBLE-Arduino/NOTICE
+  firmware/libraries/NimBLE-Arduino/UPSTREAM.md
+
+LiTime is a trademark of its respective owner. This project is independent and
+is not affiliated with, endorsed by, or sponsored by LiTime.
